@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -37,6 +39,36 @@ namespace lib.file.upload.domain.test
             Assert.Equal(2, chunckedFiles.Count());
             Assert.True(chunckedFiles.First().Name.Contains("fileName.pdf.1."));
             Assert.True(chunckedFiles.Skip(1).First().Name.Contains("fileName.pdf.2."));
+        }
+
+        [Fact]
+        public void TestName()
+        {
+            var file = System.IO.File.ReadAllBytes("{FILE_TO_UPLOAD}");
+
+            var chunckedFileBuilder = new ChunckedFileBuilder();
+
+            var chunckedFiles = chunckedFileBuilder.Build(file, "fileName.pdf").ToList();
+            foreach (var item in chunckedFiles)
+            {
+                File.WriteAllBytes($@"DIRECTORY_SAVE_PARTS\{item.Name}", item.Content);
+            }
+
+            var chunckedFile = chunckedFiles.First();
+            var _ = chunckedFile.Name.Split('.');
+
+            var files = Directory.GetFiles(@"DIRECTORY_PARTS_SAVED", $"*.{_.Last()}");
+
+            var fileParts = new List<byte[]>();
+            foreach (var item in files.OrderBy(x => x))
+            {
+                fileParts.Add(File.ReadAllBytes(item));
+                File.Delete(item);
+            }
+
+            var fileContent = fileParts.SelectMany(x => x).ToArray();
+
+            File.WriteAllBytes($@"DIRECTORY_SAVE_FILE\{_.First()}.{_.Skip(1).First()}", fileContent);
         }
     }
 }

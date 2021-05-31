@@ -18,6 +18,8 @@ namespace lib.file.upload.domain
 
             var treatedSize = 0;
             var indexPart = 1;
+            var guidFile = Guid.NewGuid();
+            
             while (treatedSize < content.Length)
             {
                 var chunckedSizeContent = content.Length - treatedSize < ChunckedMaxSize ? 
@@ -27,8 +29,6 @@ namespace lib.file.upload.domain
 
                 Buffer.BlockCopy(content, treatedSize, chunckedFileContent, 0, chunckedSizeContent);
                 treatedSize += chunckedSizeContent;
-
-                var guidFile = Guid.NewGuid();
 
                 yield return new ChunckedFile($"{fileName}.{indexPart++}.{guidFile}", chunckedFileContent);
             }

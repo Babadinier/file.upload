@@ -10,7 +10,7 @@ namespace lib.file.upload.domain
 
         public IEnumerable<ChunckedFile> Build(byte[] content, string fileName)
         {
-            if (content.Length < ChunckedMaxSize)
+            if (content.Length <= ChunckedMaxSize)
             {
                 yield return new ChunckedFile(fileName, content);
                 yield break;
